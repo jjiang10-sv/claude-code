@@ -1,0 +1,41 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "lib": ["ESNext", "DOM"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "jsxImportSource": "react",
+    "strict": false,
+    "noImplicitAny": false,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "types": ["bun-types"],
+    "baseUrl": ".",
+    "paths": {
+      "src/*": ["./src/*"],
+      "bun:bundle": ["./stubs/bun-bundle.ts"],
+      "@ant/computer-use-mcp": ["./stubs/@ant/computer-use-mcp/index.ts"],
+      "@ant/computer-use-mcp/types": ["./stubs/@ant/computer-use-mcp/types.ts"],
+      "@ant/computer-use-mcp/sentinelApps": ["./stubs/@ant/computer-use-mcp/sentinelApps.ts"],
+      "@ant/computer-use-input": ["./stubs/@ant/computer-use-input/index.ts"],
+      "@ant/computer-use-swift": ["./stubs/@ant/computer-use-swift/index.ts"],
+      "@ant/claude-for-chrome-mcp": ["./stubs/@ant/claude-for-chrome-mcp/index.ts"],
+      "@anthropic-ai/mcpb": ["./stubs/@anthropic-ai/mcpb/index.ts"],
+      "@anthropic-ai/claude-agent-sdk": ["./stubs/@anthropic-ai/claude-agent-sdk/index.ts"],
+      "@anthropic-ai/sandbox-runtime": ["./stubs/@anthropic-ai/sandbox-runtime/index.ts"],
+      "@anthropic-ai/bedrock-sdk": ["./stubs/@anthropic-ai/bedrock-sdk/index.ts"],
+      "@anthropic-ai/foundry-sdk": ["./stubs/@anthropic-ai/foundry-sdk/index.ts"],
+      "audio-capture-napi": ["./stubs/audio-capture-napi/index.ts"],
+      "color-diff-napi": ["./stubs/color-diff-napi/index.ts"],
+      "image-processor-napi": ["./stubs/image-processor-napi/index.ts"],
+      "url-handler-napi": ["./stubs/url-handler-napi/index.ts"],
+      "@anthropic-ai/sdk/core": ["./stubs/@anthropic-ai/sdk-core/index.ts"]
+    }
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx", "stubs/**/*.ts", "stubs/**/*.d.ts"],
+  "exclude": ["node_modules", "dist"]
+}

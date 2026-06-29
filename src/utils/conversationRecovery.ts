@@ -1,4 +1,4 @@
-import { feature } from 'bun:bundle'
+import { feature } from '../../stubs/bun-bundle.js'
 import type { UUID } from 'crypto'
 import { relative } from 'path'
 import { getCwd } from 'src/utils/cwd.js'
@@ -37,15 +37,13 @@ import {
 import { copyPlanForResume } from './plans.js'
 import { processSessionStartHooks } from './sessionStart.js'
 import {
-  buildConversationChain,
   checkResumeConsistency,
   getLastSessionLog,
   getSessionIdFromLog,
+  getSessionLogFromPath,
   isLiteLog,
   loadFullLog,
   loadMessageLogs,
-  loadTranscriptFile,
-  removeExtraFields,
 } from './sessionStorage.js'
 import type { ContentReplacementRecord } from './toolResultStorage.js'
 
@@ -403,43 +401,6 @@ export function restoreSkillStateFromMessages(messages: Message[]): void {
 }
 
 /**
- * Chain-walk a transcript jsonl by path.  Same sequence loadFullLog
- * runs internally — loadTranscriptFile → find newest non-sidechain
- * leaf → buildConversationChain → removeExtraFields — just starting
- * from an arbitrary path instead of the sid-derived one.
- *
- * leafUuids is populated by loadTranscriptFile as "uuids that no
- * other message's parentUuid points at" — the chain tips.  There can
- * be several (sidechains, orphans); newest non-sidechain is the main
- * conversation's end.
- */
-export async function loadMessagesFromJsonlPath(path: string): Promise<{
-  messages: SerializedMessage[]
-  sessionId: UUID | undefined
-}> {
-  const { messages: byUuid, leafUuids } = await loadTranscriptFile(path)
-  let tip: (typeof byUuid extends Map<UUID, infer T> ? T : never) | null = null
-  let tipTs = 0
-  for (const m of byUuid.values()) {
-    if (m.isSidechain || !leafUuids.has(m.uuid)) continue
-    const ts = new Date(m.timestamp).getTime()
-    if (ts > tipTs) {
-      tipTs = ts
-      tip = m
-    }
-  }
-  if (!tip) return { messages: [], sessionId: undefined }
-  const chain = buildConversationChain(byUuid, tip)
-  return {
-    messages: removeExtraFields(chain),
-    // Leaf's sessionId — forked sessions copy chain[0] from the source
-    // transcript, so the root retains the source session's ID. Matches
-    // loadFullLog's mostRecentLeaf.sessionId.
-    sessionId: tip.sessionId as UUID | undefined,
-  }
-}
-
-/**
  * Loads a conversation for resume from various sources.
  * This is the centralized function for loading and deserializing conversations.
  *
@@ -512,11 +473,11 @@ export async function loadConversationForResume(
         }) ?? null
     } else if (sourceJsonlFile) {
       // --resume with a .jsonl path (cli/print.ts routes on suffix).
-      // Same chain walk as the sid branch below — only the starting
-      // path differs.
-      const loaded = await loadMessagesFromJsonlPath(sourceJsonlFile)
-      messages = loaded.messages
-      sessionId = loaded.sessionId
+      log = await getSessionLogFromPath(sourceJsonlFile)
+      if (log) {
+        messages = log.messages
+        sessionId = getSessionIdFromLog(log) as UUID
+      }
     } else if (typeof source === 'string') {
       // Load specific session by ID
       log = await getLastSessionLog(source as UUID)

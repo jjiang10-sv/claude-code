@@ -1,0 +1,79 @@
+{
+  "version": "0.2.0",
+  // Requires the Bun VS Code extension: oven-sh.bun-vscode
+  "configurations": [
+    {
+      "name": "Login / Auth flow",
+      "type": "bun",
+      "request": "launch",
+      "program": "${workspaceFolder}/debug/explore-auth.ts",
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "ANTHROPIC_API_KEY": "${env:ANTHROPIC_API_KEY}"
+      },
+      //"stopOnEntry": true
+    },
+    {
+      "name": "Skills system",
+      "type": "bun",
+      "request": "launch",
+      "program": "${workspaceFolder}/debug/explore-skills.ts",
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "ANTHROPIC_API_KEY": "${env:ANTHROPIC_API_KEY}"
+      },
+      "stopOnEntry": true
+    },
+    {
+      "name": "QueryEngine (prompt → LLM loop)",
+      "type": "bun",
+      "request": "launch",
+      "program": "${workspaceFolder}/debug/explore-query.ts",
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "ANTHROPIC_API_KEY": "${env:ANTHROPIC_API_KEY}"
+      },
+      "stopOnEntry": true
+    },
+    {
+      "name": "AgentTool (sub-agents)",
+      "type": "bun",
+      "request": "launch",
+      "program": "${workspaceFolder}/debug/explore-agents.ts",
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "ANTHROPIC_API_KEY": "${env:ANTHROPIC_API_KEY}"
+      },
+      "stopOnEntry": true
+    },
+    {
+      "name": "Permissions system",
+      "type": "bun",
+      "request": "launch",
+      "program": "${workspaceFolder}/debug/explore-permissions.ts",
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "ANTHROPIC_API_KEY": "${env:ANTHROPIC_API_KEY}"
+      },
+      "stopOnEntry": true
+    },
+    {
+      "name": "Full CLI (main entry)",
+      "type": "bun",
+      "request": "launch",
+      "program": "${workspaceFolder}/src/main.tsx",
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "ANTHROPIC_API_KEY": "${env:ANTHROPIC_API_KEY}"
+      },
+      "stopOnEntry": true
+    },
+    {
+      "name": "Attach to running Bun process",
+      "type": "bun",
+      "request": "attach",
+      "port": 6499,
+      "hostname": "localhost"
+    }
+  ]
+}

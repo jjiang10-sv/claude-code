@@ -1,4 +1,4 @@
-import { feature } from 'bun:bundle'
+import { feature } from '../../stubs/bun-bundle.js'
 import type { UUID } from 'crypto'
 import type { Dirent } from 'fs'
 // Sync fs primitives for readFileTailSync — separate from fs/promises
@@ -3815,19 +3815,9 @@ export async function loadTranscriptFile(
 /**
  * Loads all messages, summaries, file history snapshots, and attribution snapshots from a specific session file.
  */
-async function loadSessionFile(sessionId: UUID): Promise<{
-  messages: Map<UUID, TranscriptMessage>
-  summaries: Map<UUID, string>
-  customTitles: Map<UUID, string>
-  tags: Map<UUID, string>
-  agentSettings: Map<UUID, string>
-  worktreeStates: Map<UUID, PersistedWorktreeSession | null>
-  fileHistorySnapshots: Map<UUID, FileHistorySnapshotMessage>
-  attributionSnapshots: Map<UUID, AttributionSnapshotMessage>
-  contentReplacements: Map<UUID, ContentReplacementRecord[]>
-  contextCollapseCommits: ContextCollapseCommitEntry[]
-  contextCollapseSnapshot: ContextCollapseSnapshotEntry | undefined
-}> {
+async function loadSessionFile(
+  sessionId: UUID,
+): Promise<ReturnType<typeof loadTranscriptFile>> {
   const sessionFile = join(
     getSessionProjectDir() ?? getProjectDir(getOriginalCwd()),
     `${sessionId}.jsonl`,
@@ -3875,7 +3865,13 @@ export async function getLastSessionLog(
     summaries,
     customTitles,
     tags,
+    agentNames,
+    agentColors,
     agentSettings,
+    prNumbers,
+    prUrls,
+    prRepositories,
+    modes,
     worktreeStates,
     fileHistorySnapshots,
     attributionSnapshots,
@@ -3920,6 +3916,103 @@ export async function getLastSessionLog(
       agentSetting,
       contentReplacements.get(sessionId) ?? [],
     ),
+    agentName: agentNames.get(sessionId) ?? lastMessage.agentName,
+    agentColor: agentColors.get(sessionId),
+    mode: modes.get(sessionId) as LogOption['mode'],
+    prNumber: prNumbers.get(sessionId),
+    prUrl: prUrls.get(sessionId),
+    prRepository: prRepositories.get(sessionId),
+    worktreeSession: worktreeStates.get(sessionId),
+    contextCollapseCommits: contextCollapseCommits.filter(
+      e => e.sessionId === sessionId,
+    ),
+    contextCollapseSnapshot:
+      contextCollapseSnapshot?.sessionId === sessionId
+        ? contextCollapseSnapshot
+        : undefined,
+  }
+}
+
+export async function getSessionLogFromPath(
+  filePath: string,
+): Promise<LogOption | null> {
+  const {
+    messages,
+    summaries,
+    customTitles,
+    tags,
+    agentNames,
+    agentColors,
+    agentSettings,
+    prNumbers,
+    prUrls,
+    prRepositories,
+    modes,
+    worktreeStates,
+    fileHistorySnapshots,
+    attributionSnapshots,
+    contentReplacements,
+    contextCollapseCommits,
+    contextCollapseSnapshot,
+    leafUuids,
+  } = await loadTranscriptFile(filePath)
+  if (messages.size === 0) return null
+
+  // Find the most recent non-sidechain leaf
+  let lastMessage: TranscriptMessage | undefined
+  let tipTs = 0
+  for (const m of messages.values()) {
+    if (m.isSidechain || !leafUuids.has(m.uuid)) continue
+    const ts = new Date(m.timestamp).getTime()
+    if (ts > tipTs) {
+      tipTs = ts
+      lastMessage = m
+    }
+  }
+
+  if (!lastMessage) {
+    // Fall back to any latest message if no leaf was matched
+    lastMessage = findLatestMessage(messages.values(), m => !m.isSidechain)
+  }
+  if (!lastMessage) return null
+
+  const sessionId = lastMessage.sessionId as UUID
+
+  // Prime getSessionMessages cache so recordTranscript (called after REPL
+  // mount on --resume) skips a second full file load.
+  if (sessionId && !getSessionMessages.cache.has(sessionId)) {
+    getSessionMessages.cache.set(
+      sessionId,
+      Promise.resolve(new Set(messages.keys())),
+    )
+  }
+
+  // Build the transcript chain from the last message
+  const transcript = buildConversationChain(messages, lastMessage)
+
+  const summary = summaries.get(lastMessage.uuid)
+  const customTitle = customTitles.get(sessionId)
+  const tag = tags.get(sessionId)
+  const agentSetting = agentSettings.get(sessionId)
+  return {
+    ...convertToLogOption(
+      transcript,
+      0,
+      summary,
+      customTitle,
+      buildFileHistorySnapshotChain(fileHistorySnapshots, transcript),
+      tag,
+      filePath,
+      buildAttributionSnapshotChain(attributionSnapshots, transcript),
+      agentSetting,
+      contentReplacements.get(sessionId) ?? [],
+    ),
+    agentName: agentNames.get(sessionId) ?? lastMessage.agentName,
+    agentColor: agentColors.get(sessionId),
+    mode: modes.get(sessionId) as LogOption['mode'],
+    prNumber: prNumbers.get(sessionId),
+    prUrl: prUrls.get(sessionId),
+    prRepository: prRepositories.get(sessionId),
     worktreeSession: worktreeStates.get(sessionId),
     contextCollapseCommits: contextCollapseCommits.filter(
       e => e.sessionId === sessionId,

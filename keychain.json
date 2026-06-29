@@ -1,0 +1,43 @@
+{
+    "claudeAiOauth": {
+        "accessToken": "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",
+        "refreshToken": "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",
+        "expiresAt": 1782259896292,
+        "scopes": [
+            "user:file_upload",
+            "user:inference",
+            "user:mcp_servers",
+            "user:profile",
+            "user:sessions:claude_code"
+        ],
+        "subscriptionType": "team",
+        "rateLimitTier": "default_raven"
+    },
+    "trustedDeviceToken": "-f5mvLGL3smpMccjZXupo-wr45IjFJMIXn5pn0zQQkc",
+    "mcpOAuth": {
+        "posthog|b66af36bf9e35c01": {
+            "serverName": "posthog",
+            "serverUrl": "https://mcp.posthog.com/mcp",
+            "accessToken": "",
+            "discoveryState": {
+                "authorizationServerUrl": "https://oauth.posthog.com",
+                "resourceMetadataUrl": "https://mcp.posthog.com/.well-known/oauth-protected-resource/mcp",
+                "oauthMetadataFound": true
+            },
+            "clientId": "https://claude.ai/oauth/claude-code-client-metadata",
+            "redirectUri": "http://localhost:3118/callback"
+        },
+        "plugin:Notion:notion|eac663db915250e7": {
+            "serverName": "plugin:Notion:notion",
+            "serverUrl": "https://mcp.notion.com/mcp",
+            "accessToken": "",
+            "discoveryState": {
+                "authorizationServerUrl": "https://mcp.notion.com",
+                "resourceMetadataUrl": "https://mcp.notion.com/.well-known/oauth-protected-resource/mcp",
+                "oauthMetadataFound": true
+            },
+            "clientId": "https://claude.ai/oauth/claude-code-client-metadata",
+            "redirectUri": "http://localhost:3118/callback"
+        }
+    }
+}
