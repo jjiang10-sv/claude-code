@@ -23,3 +23,9 @@ export interface Logger {
 export interface ComputerUseHostAdapter {
   executor: ComputerExecutor
 }
+
+export const DEFAULT_GRANT_FLAGS = {
+  clipboardRead: false,
+  clipboardWrite: false,
+  systemKeyCombos: false,
+}

@@ -1,0 +1,265 @@
+2026-07-01T00:41:53.809Z [DEBUG] MDM settings load completed in 2ms
+2026-07-01T00:41:53.876Z [DEBUG] Broken symlink or missing file encountered for settings.json at path: /Library/Application Support/ClaudeCode/managed-settings.json
+2026-07-01T00:41:53.877Z [DEBUG] Broken symlink or missing file encountered for settings.json at path: /Users/john/Documents/projects/blueRaven/agents/claude-code-src/.claude/settings.json
+2026-07-01T00:41:53.878Z [DEBUG] CA certs: Config fallback - globalEnv keys: , settingsEnv keys: none
+2026-07-01T00:41:53.895Z [DEBUG] [init] configureGlobalMTLS starting
+2026-07-01T00:41:53.895Z [DEBUG] [init] configureGlobalMTLS complete
+2026-07-01T00:41:53.896Z [DEBUG] [init] configureGlobalAgents starting
+2026-07-01T00:41:53.896Z [DEBUG] CA certs: stores=bundled,system, extraCertsPath=undefined
+2026-07-01T00:41:53.897Z [DEBUG] CA certs: Loaded 145 bundled root certificates
+2026-07-01T00:41:53.940Z [DEBUG] CA certs: Loaded 1 system CA certificates
+2026-07-01T00:41:53.940Z [DEBUG] mTLS: Creating HTTPS agent with custom certificates
+2026-07-01T00:41:53.940Z [DEBUG] [init] configureGlobalAgents complete
+2026-07-01T00:41:53.944Z [DEBUG] Error log sink initialized
+2026-07-01T00:41:53.955Z [DEBUG] Applying permission update: Adding 7 allow rule(s) to destination 'localSettings': ["Bash(bun install *)","Bash(bun info *)","Bash(bun run *)","Bash(sed \"s/error TS2307: Cannot find module '//;s/'//\")","Read(//tmp/**)","Bash(bun *)","Bash(kill %1)"]
+2026-07-01T00:41:53.955Z [DEBUG] [ToolSearch:optimistic] mode=tst, ENABLE_TOOL_SEARCH=undefined, result=true
+2026-07-01T00:41:53.956Z [DEBUG] [STARTUP] Loading MCP configs...
+2026-07-01T00:41:53.959Z [DEBUG] [STARTUP] Running setup()...
+2026-07-01T00:41:53.961Z [DEBUG] Loading skills from: managed=/Library/Application Support/ClaudeCode/.claude/skills, user=/Users/john/.claude/skills, project=[]
+2026-07-01T00:41:53.966Z [DEBUG] [TeammateModeSnapshot] Captured from config: in-process
+2026-07-01T00:41:53.967Z [DEBUG] Broken symlink or missing file encountered for settings.json at path: /Library/Application Support/ClaudeCode/managed-settings.json
+2026-07-01T00:41:53.969Z [DEBUG] Broken symlink or missing file encountered for settings.json at path: /Users/john/Documents/projects/blueRaven/agents/claude-code-src/.claude/settings.json
+2026-07-01T00:41:53.970Z [DEBUG] Error log sink initialized
+2026-07-01T00:41:53.978Z [DEBUG] [claudeai-mcp] Fetching from https://api.anthropic.com/v1/mcp_servers?limit=1000
+2026-07-01T00:41:53.982Z [DEBUG] Failed to stat directory /Library/Application Support/ClaudeCode/.claude/commands: ENOENT: no such file or directory, stat '/Library/Application Support/ClaudeCode/.claude/commands'
+2026-07-01T00:41:53.982Z [DEBUG] Failed to stat directory /Users/john/.claude/commands: ENOENT: no such file or directory, stat '/Users/john/.claude/commands'
+2026-07-01T00:41:53.982Z [DEBUG] Failed to stat directory /Library/Application Support/ClaudeCode/.claude/agents: ENOENT: no such file or directory, stat '/Library/Application Support/ClaudeCode/.claude/agents'
+2026-07-01T00:41:53.985Z [DEBUG] [STARTUP] setup() completed in 26ms
+2026-07-01T00:41:53.985Z [DEBUG] Cleared CA certificates cache
+2026-07-01T00:41:53.985Z [DEBUG] Cleared mTLS configuration cache
+2026-07-01T00:41:53.985Z [DEBUG] Cleared proxy agent cache
+2026-07-01T00:41:53.986Z [DEBUG] CA certs: stores=bundled,system, extraCertsPath=undefined
+2026-07-01T00:41:53.986Z [DEBUG] CA certs: Loaded 145 bundled root certificates
+2026-07-01T00:41:53.986Z [DEBUG] CA certs: Loaded 1 system CA certificates
+2026-07-01T00:41:53.986Z [DEBUG] mTLS: Creating HTTPS agent with custom certificates
+2026-07-01T00:41:53.986Z [DEBUG] [STARTUP] Loading commands and agents...
+2026-07-01T00:41:54.015Z [DEBUG] Loaded 7 installed plugins from /Users/john/.claude/plugins/installed_plugins.json
+2026-07-01T00:41:54.017Z [DEBUG] Loaded 2 unique skills (2 unconditional, 0 conditional, managed: 0, user: 2, project: 0, additional: 0, legacy commands: 0)
+2026-07-01T00:41:54.023Z [DEBUG] Git remote URL: https://github.com/jjiang10-sv/claude-code.git
+2026-07-01T00:41:54.024Z [DEBUG] Parsed repository: github.com/jjiang10-sv/claude-code from URL: https://github.com/jjiang10-sv/claude-code.git
+2026-07-01T00:41:54.031Z [DEBUG] Read hooks.json for plugin hookify (enabled=true): /Users/john/Documents/projects/blueRaven/agents/claude-code/plugins/hookify/hooks/hooks.json
+2026-07-01T00:41:54.035Z [DEBUG] Found 6 plugins (5 enabled, 1 disabled)
+2026-07-01T00:41:54.036Z [DEBUG] getPluginSkills: Processing 5 enabled plugins
+2026-07-01T00:41:54.036Z [DEBUG] Checking plugin claude-md-management: skillsPath=exists, skillsPaths=0 paths
+2026-07-01T00:41:54.036Z [DEBUG] Attempting to load skills from plugin claude-md-management default skillsPath: /Users/john/.claude/plugins/cache/claude-plugins-official/claude-md-management/1.0.0/skills
+2026-07-01T00:41:54.036Z [DEBUG] Checking plugin code-review: skillsPath=none, skillsPaths=0 paths
+2026-07-01T00:41:54.036Z [DEBUG] Checking plugin commit-commands: skillsPath=none, skillsPaths=0 paths
+2026-07-01T00:41:54.036Z [DEBUG] Checking plugin hookify: skillsPath=exists, skillsPaths=0 paths
+2026-07-01T00:41:54.036Z [DEBUG] Attempting to load skills from plugin hookify default skillsPath: /Users/john/Documents/projects/blueRaven/agents/claude-code/plugins/hookify/skills
+2026-07-01T00:41:54.036Z [DEBUG] Checking plugin skill-creator: skillsPath=exists, skillsPaths=0 paths
+2026-07-01T00:41:54.036Z [DEBUG] Attempting to load skills from plugin skill-creator default skillsPath: /Users/john/.claude/plugins/cache/claude-plugins-official/skill-creator/unknown/skills
+2026-07-01T00:41:54.036Z [DEBUG] Total plugin workflows loaded: 0
+2026-07-01T00:41:54.040Z [DEBUG] Loading hooks from plugin: hookify
+2026-07-01T00:41:54.041Z [DEBUG] Registered 4 hooks from 5 plugins
+2026-07-01T00:41:54.044Z [DEBUG] Loaded 1 commands from plugin claude-md-management default directory
+2026-07-01T00:41:54.045Z [DEBUG] Loaded 4 commands from plugin hookify default directory
+2026-07-01T00:41:54.045Z [DEBUG] Loaded 1 commands from plugin code-review default directory
+2026-07-01T00:41:54.045Z [DEBUG] Loaded 3 commands from plugin commit-commands default directory
+2026-07-01T00:41:54.045Z [DEBUG] Total plugin commands loaded: 9
+2026-07-01T00:41:54.046Z [DEBUG] Loaded 1 agents from plugin hookify default directory
+2026-07-01T00:41:54.046Z [DEBUG] Total plugin agents loaded: 1
+2026-07-01T00:41:54.047Z [DEBUG] Loaded 1 skills from plugin hookify default directory
+2026-07-01T00:41:54.047Z [DEBUG] Loaded 1 skills from plugin claude-md-management default directory
+2026-07-01T00:41:54.047Z [DEBUG] Loaded 1 skills from plugin skill-creator default directory
+2026-07-01T00:41:54.047Z [DEBUG] Total plugin skills loaded: 3
+2026-07-01T00:41:54.047Z [DEBUG] getSkills returning: 2 skill dir commands, 3 plugin skills, 19 bundled skills, 0 builtin plugin skills
+2026-07-01T00:41:54.049Z [DEBUG] [STARTUP] Commands and agents loaded in 63ms
+2026-07-01T00:41:54.049Z [DEBUG] [LSP MANAGER] initializeLspServerManager() called
+2026-07-01T00:41:54.050Z [DEBUG] [LSP MANAGER] Created manager instance, state=pending
+2026-07-01T00:41:54.050Z [DEBUG] [LSP MANAGER] Starting async initialization (generation 1)
+2026-07-01T00:41:54.050Z [DEBUG] Starting background startup prefetches
+2026-07-01T00:41:54.050Z [DEBUG] [Bootstrap] Fetching
+2026-07-01T00:41:54.052Z [DEBUG] [STARTUP] MCP configs resolved in 87ms (awaited at +96ms)
+2026-07-01T00:41:54.054Z [DEBUG] All plugins already exist, skipping migration
+2026-07-01T00:41:54.054Z [DEBUG] Cleared CA certificates cache
+2026-07-01T00:41:54.054Z [DEBUG] Cleared mTLS configuration cache
+2026-07-01T00:41:54.054Z [DEBUG] Cleared proxy agent cache
+2026-07-01T00:41:54.054Z [DEBUG] CA certs: stores=bundled,system, extraCertsPath=undefined
+2026-07-01T00:41:54.054Z [DEBUG] CA certs: Loaded 145 bundled root certificates
+2026-07-01T00:41:54.054Z [DEBUG] CA certs: Loaded 1 system CA certificates
+2026-07-01T00:41:54.054Z [DEBUG] mTLS: Creating HTTPS agent with custom certificates
+2026-07-01T00:41:54.054Z [DEBUG] [3P telemetry] Waiting for remote managed settings before telemetry init
+2026-07-01T00:41:54.055Z [DEBUG] Initialized versioned plugins system with 7 plugins
+2026-07-01T00:41:54.055Z [DEBUG] Fast mode unavailable: Fast mode is not available in the Agent SDK
+2026-07-01T00:41:54.056Z [DEBUG] [MCP] --mcp-config servers running fully async (nonblocking)
+2026-07-01T00:41:54.056Z [DEBUG] [MCP] claude.ai connectors running fully async (nonblocking)
+2026-07-01T00:41:54.056Z [DEBUG] [3P telemetry] Remote managed settings loaded, initializing telemetry
+2026-07-01T00:41:54.056Z [DEBUG] Cleared CA certificates cache
+2026-07-01T00:41:54.056Z [DEBUG] Cleared mTLS configuration cache
+2026-07-01T00:41:54.056Z [DEBUG] Cleared proxy agent cache
+2026-07-01T00:41:54.056Z [DEBUG] CA certs: stores=bundled,system, extraCertsPath=undefined
+2026-07-01T00:41:54.056Z [DEBUG] CA certs: Loaded 145 bundled root certificates
+2026-07-01T00:41:54.056Z [DEBUG] CA certs: Loaded 1 system CA certificates
+2026-07-01T00:41:54.057Z [DEBUG] mTLS: Creating HTTPS agent with custom certificates
+2026-07-01T00:41:54.060Z [DEBUG] [Perfetto] initializePerfettoTracing called, env value: undefined
+2026-07-01T00:41:54.060Z [DEBUG] [3P telemetry] isTelemetryEnabled=false (CLAUDE_CODE_ENABLE_TELEMETRY=undefined)
+2026-07-01T00:41:54.084Z [DEBUG] [ScheduledTasks] scheduler start() — enabled=false, hasTasks=false
+2026-07-01T00:41:54.106Z [DEBUG] Total LSP servers loaded: 0
+2026-07-01T00:41:54.106Z [DEBUG] [LSP SERVER MANAGER] getAllLspServers returned 0 server(s)
+2026-07-01T00:41:54.106Z [DEBUG] LSP manager initialized with 0 servers
+2026-07-01T00:41:54.106Z [DEBUG] LSP server manager initialized successfully
+2026-07-01T00:41:54.106Z [DEBUG] LSP notification handlers registered successfully for all 0 server(s)
+2026-07-01T00:41:54.107Z [DEBUG] MCP server "posthog": Skipping connection (cached needs-auth)
+2026-07-01T00:41:54.107Z [DEBUG] Failed to stat directory /Library/Application Support/ClaudeCode/.claude/skills: ENOENT: no such file or directory, stat '/Library/Application Support/ClaudeCode/.claude/skills'
+2026-07-01T00:41:54.108Z [DEBUG] Failed to stat directory /Library/Application Support/ClaudeCode/.claude/output-styles: ENOENT: no such file or directory, stat '/Library/Application Support/ClaudeCode/.claude/output-styles'
+2026-07-01T00:41:54.108Z [DEBUG] Failed to stat directory /Users/john/.claude/output-styles: ENOENT: no such file or directory, stat '/Users/john/.claude/output-styles'
+2026-07-01T00:41:54.108Z [DEBUG] Total plugin output styles loaded: 0
+2026-07-01T00:41:54.108Z [DEBUG] act_dont_rederive_arm_active source=growthbook
+2026-07-01T00:41:54.110Z [WARN] [3P telemetry] Event dropped (no event logger initialized): plugin_loaded
+2026-07-01T00:41:54.111Z [DEBUG] Watching for changes in skill/command directories: /Users/john/.claude/skills, /Users/john/.claude/agents...
+2026-07-01T00:41:54.113Z [DEBUG] Watching for changes in setting files /Users/john/.claude/settings.json, /Users/john/Documents/projects/blueRaven/agents/claude-code-src/.claude/settings.json, /Users/john/Documents/projects/blueRaven/agents/claude-code-src/.claude/settings.local.json...
+2026-07-01T00:41:54.119Z [DEBUG] MCP server "posthog": Skipping connection (cached needs-auth)
+2026-07-01T00:41:54.122Z [DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+2026-07-01T00:41:54.122Z [DEBUG] LSP Diagnostics: Checking registry - 0 pending
+2026-07-01T00:41:54.122Z [DEBUG] Hooks: Found 0 total hooks in registry
+2026-07-01T00:41:54.122Z [DEBUG] Sending 28 skills via attachment (initial)
+2026-07-01T00:41:54.123Z [DEBUG] Skill prompt: showing "claude-md-management:claude-md-improver" (userFacingName="claude-md-improver")
+2026-07-01T00:41:54.123Z [DEBUG] Skill prompt: showing "hookify:writing-rules" (userFacingName="Writing Hookify Rules")
+2026-07-01T00:41:54.123Z [DEBUG] Skill prompt: showing "skill-creator:skill-creator" (userFacingName="skill-creator")
+2026-07-01T00:41:54.123Z [DEBUG] Hooks: checkForNewResponses returning 0 responses
+2026-07-01T00:41:54.136Z [DEBUG] Ripgrep first use test: PASSED (mode=embedded, path=/opt/homebrew/Caskroom/claude-code/2.1.181/claude)
+2026-07-01T00:41:54.196Z [DEBUG] Preserving file permissions: 100600
+2026-07-01T00:41:54.196Z [DEBUG] Writing to temp file: /Users/john/.claude.json.tmp.25324.cf7c58a95544
+2026-07-01T00:41:54.196Z [DEBUG] Applied original permissions to temp file
+2026-07-01T00:41:54.196Z [DEBUG] Temp file written successfully, size: 78109 bytes
+2026-07-01T00:41:54.196Z [DEBUG] Renaming /Users/john/.claude.json.tmp.25324.cf7c58a95544 to /Users/john/.claude.json
+2026-07-01T00:41:54.197Z [DEBUG] File /Users/john/.claude.json written atomically
+2026-07-01T00:41:54.197Z [DEBUG] [auto-mode] verifyAutoModeGateAccess: enabledState=enabled disabledBySettings=false model=claude-sonnet-4-6 modelSupported=true disableFastModeBreakerFires=false carouselAvailable=true canEnterAuto=true
+2026-07-01T00:41:54.197Z [DEBUG] Tool search disabled: ToolSearchTool is not available (may have been disallowed via disallowedTools).
+2026-07-01T00:41:54.198Z [DEBUG] attribution header x-anthropic-billing-header: cc_version=2.1.181.02e; cc_entrypoint=sdk-cli; cch=00000;
+2026-07-01T00:41:54.199Z [DEBUG] Fast mode unavailable: Fast mode is not available in the Agent SDK
+2026-07-01T00:41:54.199Z [DEBUG] Fast mode unavailable: Fast mode is not available in the Agent SDK
+2026-07-01T00:41:54.200Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-07-01T00:41:54.200Z [DEBUG] [API:auth] OAuth token check starting
+2026-07-01T00:41:54.201Z [DEBUG] [API:auth] OAuth token check complete
+2026-07-01T00:41:54.202Z [DEBUG] Fast mode unavailable: Fast mode is not available in the Agent SDK
+2026-07-01T00:41:54.202Z [DEBUG] [API:timing] dispatching to firstParty model=claude-haiku-4-5-20251001
+2026-07-01T00:41:54.204Z [DEBUG] [API REQUEST] /v1/messages x-client-request-id=efb99d88-3a7d-49ad-8764-a4389ad18394 source=generate_session_title
+2026-07-01T00:41:54.213Z [DEBUG] Hooks: Checking first line for async: {}
+2026-07-01T00:41:54.213Z [DEBUG] Hooks: Parsed initial response: {}
+2026-07-01T00:41:54.213Z [DEBUG] Hooks: Initial response is not async, continuing normal processing
+2026-07-01T00:41:54.218Z [DEBUG] Successfully parsed and validated hook JSON output
+2026-07-01T00:41:54.218Z [DEBUG] Hook UserPromptSubmit (UserPromptSubmit) success:
+{}
+2026-07-01T00:41:54.221Z [DEBUG] Fast mode unavailable: Fast mode is not available in the Agent SDK
+2026-07-01T00:41:54.224Z [DEBUG] autocompact: tokens=[REDACTED] level=ok effectiveWindow=180000
+2026-07-01T00:41:54.226Z [DEBUG] Dynamic tool loading: 0/21 deferred tools included
+2026-07-01T00:41:54.226Z [DEBUG] attribution header x-anthropic-billing-header: cc_version=2.1.181.50e; cc_entrypoint=sdk-cli; cch=00000;
+2026-07-01T00:41:54.227Z [DEBUG] Fast mode unavailable: Fast mode is not available in the Agent SDK
+2026-07-01T00:41:54.227Z [DEBUG] Fast mode unavailable: Fast mode is not available in the Agent SDK
+2026-07-01T00:41:54.227Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-07-01T00:41:54.227Z [DEBUG] [API:auth] OAuth token check starting
+2026-07-01T00:41:54.227Z [DEBUG] [API:auth] OAuth token check complete
+2026-07-01T00:41:54.228Z [DEBUG] Fast mode unavailable: Fast mode is not available in the Agent SDK
+2026-07-01T00:41:54.228Z [DEBUG] [API:timing] dispatching to firstParty model=claude-sonnet-4-6
+2026-07-01T00:41:54.228Z [DEBUG] [API REQUEST] /v1/messages x-client-request-id=818d9f5e-1b81-40e2-abd4-56cf75a3f7e2 source=sdk
+2026-07-01T00:41:54.236Z [DEBUG] Remote settings: No settings found (404)
+2026-07-01T00:41:54.237Z [DEBUG] Remote settings: Saved to /Users/john/.claude/remote-settings.json
+2026-07-01T00:41:54.237Z [DEBUG] Remote settings: Saved empty sentinel (404 response)
+2026-07-01T00:41:54.238Z [DEBUG] Broken symlink or missing file encountered for settings.json at path: /Users/john/Documents/projects/blueRaven/agents/claude-code-src/.claude/settings.json
+2026-07-01T00:41:54.238Z [DEBUG] Broken symlink or missing file encountered for settings.json at path: /Library/Application Support/ClaudeCode/managed-settings.json
+2026-07-01T00:41:54.239Z [DEBUG] Programmatic settings change notification for policySettings
+2026-07-01T00:41:54.239Z [DEBUG] Broken symlink or missing file encountered for settings.json at path: /Users/john/Documents/projects/blueRaven/agents/claude-code-src/.claude/settings.json
+2026-07-01T00:41:54.240Z [DEBUG] Broken symlink or missing file encountered for settings.json at path: /Library/Application Support/ClaudeCode/managed-settings.json
+2026-07-01T00:41:54.240Z [DEBUG] Plugin hooks: skipping reload, plugin-affecting settings unchanged
+2026-07-01T00:41:54.240Z [DEBUG] Settings changed from policySettings, updating app state
+2026-07-01T00:41:54.240Z [DEBUG] Broken symlink or missing file encountered for settings.json at path: /Library/Application Support/ClaudeCode/managed-settings.json
+2026-07-01T00:41:54.240Z [DEBUG] Broken symlink or missing file encountered for settings.json at path: /Users/john/Documents/projects/blueRaven/agents/claude-code-src/.claude/settings.json
+2026-07-01T00:41:54.241Z [DEBUG] Replacing all allow rules for destination 'userSettings' with 0 rule(s): []
+2026-07-01T00:41:54.241Z [DEBUG] Replacing all deny rules for destination 'userSettings' with 0 rule(s): []
+2026-07-01T00:41:54.241Z [DEBUG] Replacing all ask rules for destination 'userSettings' with 0 rule(s): []
+2026-07-01T00:41:54.241Z [DEBUG] Replacing all allow rules for destination 'projectSettings' with 0 rule(s): []
+2026-07-01T00:41:54.241Z [DEBUG] Replacing all deny rules for destination 'projectSettings' with 0 rule(s): []
+2026-07-01T00:41:54.241Z [DEBUG] Replacing all ask rules for destination 'projectSettings' with 0 rule(s): []
+2026-07-01T00:41:54.241Z [DEBUG] Replacing all allow rules for destination 'localSettings' with 0 rule(s): []
+2026-07-01T00:41:54.241Z [DEBUG] Replacing all deny rules for destination 'localSettings' with 0 rule(s): []
+2026-07-01T00:41:54.241Z [DEBUG] Replacing all ask rules for destination 'localSettings' with 0 rule(s): []
+2026-07-01T00:41:54.241Z [DEBUG] Replacing all allow rules for destination 'flagSettings' with 0 rule(s): []
+2026-07-01T00:41:54.241Z [DEBUG] Replacing all deny rules for destination 'flagSettings' with 0 rule(s): []
+2026-07-01T00:41:54.241Z [DEBUG] Replacing all ask rules for destination 'flagSettings' with 0 rule(s): []
+2026-07-01T00:41:54.241Z [DEBUG] Replacing all allow rules for destination 'policySettings' with 0 rule(s): []
+2026-07-01T00:41:54.241Z [DEBUG] Replacing all deny rules for destination 'policySettings' with 0 rule(s): []
+2026-07-01T00:41:54.241Z [DEBUG] Replacing all ask rules for destination 'policySettings' with 0 rule(s): []
+2026-07-01T00:41:54.241Z [DEBUG] Replacing all allow rules for destination 'localSettings' with 7 rule(s): ["Bash(bun install *)","Bash(bun info *)","Bash(bun run *)","Bash(sed \"s/error TS2307: Cannot find module '//;s/'//\")","Read(//tmp/**)","Bash(bun *)","Bash(kill %1)"]
+2026-07-01T00:41:54.305Z [DEBUG] [claudeai-mcp] Fetched 9 servers
+2026-07-01T00:41:54.306Z [DEBUG] installPluginsForHeadless: starting
+2026-07-01T00:41:54.308Z [DEBUG] MCP server "claude.ai Google Calendar": Initializing claude.ai proxy transport for server mcpsrv_01RnGQhtZAwyydNDU1sXjtXj
+2026-07-01T00:41:54.309Z [DEBUG] MCP server "claude.ai Google Calendar": Using claude.ai proxy at https://mcp-proxy.anthropic.com/v1/mcp/mcpsrv_01RnGQhtZAwyydNDU1sXjtXj
+2026-07-01T00:41:54.309Z [DEBUG] MCP server "claude.ai Google Calendar": claude.ai proxy transport created successfully
+2026-07-01T00:41:54.311Z [DEBUG] MCP server "claude.ai Google Calendar": Starting connection with timeout of 30000ms
+2026-07-01T00:41:54.311Z [DEBUG] MCP server "claude.ai Google Calendar": Stateless claudeai-proxy — resolving MCP initialize from cached projection
+2026-07-01T00:41:54.312Z [DEBUG] MCP server "claude.ai Gmail": Initializing claude.ai proxy transport for server mcpsrv_0186Gi8vTL1BCT84cDa8kwco
+2026-07-01T00:41:54.312Z [DEBUG] MCP server "claude.ai Gmail": Using claude.ai proxy at https://mcp-proxy.anthropic.com/v1/mcp/mcpsrv_0186Gi8vTL1BCT84cDa8kwco
+2026-07-01T00:41:54.312Z [DEBUG] MCP server "claude.ai Gmail": claude.ai proxy transport created successfully
+2026-07-01T00:41:54.312Z [DEBUG] MCP server "claude.ai Gmail": Starting connection with timeout of 30000ms
+2026-07-01T00:41:54.312Z [DEBUG] MCP server "claude.ai Gmail": Stateless claudeai-proxy — resolving MCP initialize from cached projection
+2026-07-01T00:41:54.313Z [DEBUG] MCP server "claude.ai Slack": Initializing claude.ai proxy transport for server mcpsrv_016cbjUTeJgpvLz95reMK9BT
+2026-07-01T00:41:54.313Z [DEBUG] MCP server "claude.ai Slack": Using claude.ai proxy at https://mcp-proxy.anthropic.com/v1/mcp/mcpsrv_016cbjUTeJgpvLz95reMK9BT
+2026-07-01T00:41:54.313Z [DEBUG] MCP server "claude.ai Slack": claude.ai proxy transport created successfully
+2026-07-01T00:41:54.314Z [DEBUG] MCP server "claude.ai Slack": Starting connection with timeout of 30000ms
+2026-07-01T00:41:54.314Z [DEBUG] MCP server "claude.ai Canva": Initializing claude.ai proxy transport for server mcpsrv_01GLazM5YqqocwAa6VyXbMeS
+2026-07-01T00:41:54.314Z [DEBUG] MCP server "claude.ai Canva": Using claude.ai proxy at https://mcp-proxy.anthropic.com/v1/mcp/mcpsrv_01GLazM5YqqocwAa6VyXbMeS
+2026-07-01T00:41:54.314Z [DEBUG] MCP server "claude.ai Canva": claude.ai proxy transport created successfully
+2026-07-01T00:41:54.314Z [DEBUG] MCP server "claude.ai Canva": Starting connection with timeout of 30000ms
+2026-07-01T00:41:54.315Z [DEBUG] MCP server "claude.ai Notion": Initializing claude.ai proxy transport for server mcpsrv_01Nu6eMSQxSYjZZZJ9HwjTqD
+2026-07-01T00:41:54.315Z [DEBUG] MCP server "claude.ai Notion": Using claude.ai proxy at https://mcp-proxy.anthropic.com/v1/mcp/mcpsrv_01Nu6eMSQxSYjZZZJ9HwjTqD
+2026-07-01T00:41:54.315Z [DEBUG] MCP server "claude.ai Notion": claude.ai proxy transport created successfully
+2026-07-01T00:41:54.315Z [DEBUG] MCP server "claude.ai Notion": Starting connection with timeout of 30000ms
+2026-07-01T00:41:54.316Z [DEBUG] MCP server "claude.ai Google Calendar": Successfully connected (transport: claudeai-proxy) in 8ms
+2026-07-01T00:41:54.316Z [DEBUG] MCP server "claude.ai Google Calendar": Connection established with capabilities: {"hasTools":true,"hasPrompts":true,"hasResources":false,"hasResourceSubscribe":false,"serverVersion":{"name":"StatelessServer","version":"ESF"}}
+2026-07-01T00:41:54.316Z [DEBUG] [MCP] Server "claude.ai Google Calendar" connected with subscribe=false
+2026-07-01T00:41:54.316Z [DEBUG] MCP server "claude.ai Gmail": Successfully connected (transport: claudeai-proxy) in 4ms
+2026-07-01T00:41:54.316Z [DEBUG] MCP server "claude.ai Gmail": Connection established with capabilities: {"hasTools":true,"hasPrompts":true,"hasResources":false,"hasResourceSubscribe":false,"serverVersion":{"name":"StatelessServer","version":"ESF"}}
+2026-07-01T00:41:54.316Z [DEBUG] [MCP] Server "claude.ai Gmail" connected with subscribe=false
+2026-07-01T00:41:54.405Z [DEBUG] Org fast mode: disabled (preference)
+2026-07-01T00:41:54.405Z [DEBUG] Policy limits: Fetched successfully
+2026-07-01T00:41:54.406Z [DEBUG] Policy limits: Saved to /Users/john/.claude/policy-limits.json
+2026-07-01T00:41:54.406Z [DEBUG] Policy limits: Applied new restrictions successfully
+2026-07-01T00:41:54.432Z [DEBUG] [Bootstrap] Fetch ok
+2026-07-01T00:41:54.433Z [DEBUG] [Bootstrap] Cache unchanged, skipping write
+2026-07-01T00:41:54.901Z [DEBUG] [mcp-registry] Loaded 294 official MCP URLs (legacy)
+2026-07-01T00:41:54.941Z [DEBUG] MCP server "claude.ai Notion": Successfully connected (transport: claudeai-proxy) in 626ms
+2026-07-01T00:41:54.942Z [DEBUG] MCP server "claude.ai Notion": Connection established with capabilities: {"hasTools":true,"hasPrompts":false,"hasResources":true,"hasResourceSubscribe":false,"serverVersion":{"name":"Notion MCP","icons":[{"src":"https://mcp.notion.com/notion-logo-block-main.svg","mimeType":"image/svg+xml"}],"version":"1.2.0","websiteUrl":"https://developers.notion.com/docs/mcp","description":"Notion's official MCP server lets you use your Notion workspace as a system of record for knowledge work and software development. Search questions about the codebase and business, fetch links to pages such as tech specs and PRDs, and track tasks with your team."}}
+2026-07-01T00:41:54.942Z [DEBUG] [MCP] Server "claude.ai Notion" connected with subscribe=false
+2026-07-01T00:41:55.126Z [DEBUG] Stream started - received first chunk
+2026-07-01T00:41:55.126Z [DEBUG] [API:timing] first byte after 924ms
+2026-07-01T00:41:55.130Z [DEBUG] MCP server "claude.ai Canva": Successfully connected (transport: claudeai-proxy) in 816ms
+2026-07-01T00:41:55.131Z [DEBUG] MCP server "claude.ai Canva": Connection established with capabilities: {"hasTools":true,"hasPrompts":false,"hasResources":true,"hasResourceSubscribe":false,"serverVersion":{"name":"Canva MCP Server","version":"1.0.0"}}
+2026-07-01T00:41:55.131Z [DEBUG] [MCP] Server "claude.ai Canva" connected with subscribe=false
+2026-07-01T00:41:55.409Z [DEBUG] MCP server "claude.ai Slack": Successfully connected (transport: claudeai-proxy) in 1096ms
+2026-07-01T00:41:55.409Z [DEBUG] MCP server "claude.ai Slack": Connection established with capabilities: {"hasTools":true,"hasPrompts":false,"hasResources":true,"hasResourceSubscribe":false,"serverVersion":{"name":"Slack MCP","version":"1.0.0"}}
+2026-07-01T00:41:55.409Z [DEBUG] [MCP] Server "claude.ai Slack" connected with subscribe=false
+2026-07-01T00:41:56.891Z [DEBUG] Stream started - received first chunk
+2026-07-01T00:41:56.892Z [DEBUG] [API:timing] first byte after 2664ms
+2026-07-01T00:42:03.606Z [DEBUG] Hooks: Checking first line for async: {}
+2026-07-01T00:42:03.606Z [DEBUG] Hooks: Parsed initial response: {}
+2026-07-01T00:42:03.606Z [DEBUG] Hooks: Initial response is not async, continuing normal processing
+2026-07-01T00:42:03.611Z [DEBUG] Successfully parsed and validated hook JSON output
+2026-07-01T00:42:03.611Z [DEBUG] Hook Stop (Stop) success:
+{}
+2026-07-01T00:42:03.612Z [DEBUG] Fast mode unavailable: Fast mode is not available in the Agent SDK
+2026-07-01T00:42:03.614Z [DEBUG] MCP server "claude.ai Google Calendar": CLAUDEAI-PROXY connection closed after 9s (cleanly)
+2026-07-01T00:42:03.614Z [DEBUG] MCP server "claude.ai Google Calendar": Cleared connection cache for reconnection
+2026-07-01T00:42:03.614Z [DEBUG] MCP server "claude.ai Gmail": CLAUDEAI-PROXY connection closed after 9s (cleanly)
+2026-07-01T00:42:03.614Z [DEBUG] MCP server "claude.ai Gmail": Cleared connection cache for reconnection
+2026-07-01T00:42:03.614Z [DEBUG] MCP server "claude.ai Slack": CLAUDEAI-PROXY connection closed after 8s (cleanly)
+2026-07-01T00:42:03.614Z [DEBUG] MCP server "claude.ai Slack": Cleared connection cache for reconnection
+2026-07-01T00:42:03.614Z [DEBUG] MCP server "claude.ai Canva": CLAUDEAI-PROXY connection closed after 8s (cleanly)
+2026-07-01T00:42:03.614Z [DEBUG] MCP server "claude.ai Canva": Cleared connection cache for reconnection
+2026-07-01T00:42:03.615Z [DEBUG] MCP server "claude.ai Notion": CLAUDEAI-PROXY connection closed after 8s (cleanly)
+2026-07-01T00:42:03.615Z [DEBUG] MCP server "claude.ai Notion": Cleared connection cache for reconnection
+2026-07-01T00:42:03.631Z [DEBUG] LSP server manager shut down successfully
+2026-07-01T00:42:03.894Z [DEBUG] BigQuery metrics exported successfully
+2026-07-01T00:42:03.895Z [DEBUG] BigQuery API Response: {
+  "accepted_count": 12,
+  "rejected_count": 0
+}
+2026-07-01T00:42:03.895Z [DEBUG] BigQuery metrics exporter flush complete
+2026-07-01T00:42:03.895Z [DEBUG] BigQuery metrics exporter flush complete
+2026-07-01T00:42:03.895Z [DEBUG] BigQuery metrics exporter shutdown complete
+2026-07-01T00:42:04.327Z [DEBUG] Preserving file permissions: 100600
+2026-07-01T00:42:04.328Z [DEBUG] Writing to temp file: /Users/john/.claude.json.tmp.25324.3b17998237b3
+2026-07-01T00:42:04.328Z [DEBUG] Applied original permissions to temp file
+2026-07-01T00:42:04.328Z [DEBUG] Temp file written successfully, size: 78109 bytes
+2026-07-01T00:42:04.329Z [DEBUG] Renaming /Users/john/.claude.json.tmp.25324.3b17998237b3 to /Users/john/.claude.json
+2026-07-01T00:42:04.329Z [DEBUG] File /Users/john/.claude.json written atomically
