@@ -157,9 +157,20 @@ The following files were modified and why each change was necessary.
 
 ### Modified Files
 
-#### `build.ts` *(New file — custom build + post-processing script)*
+#### `build.ts` *(Created from scratch — not part of the original leak)*
 
-This is the core of the local dev setup. It runs `Bun.build()` to bundle `src/entrypoints/cli.tsx` into `dist/main.js`, then applies three sequential post-build patches to the output.
+The original repository's `package.json` had `"build": "bun build.ts"` in its scripts, but **`build.ts` was never included in the source map leak**. Anthropic's internal build pipeline runs on private CI infrastructure with internal tooling and secrets that were not part of the npm sourcemap dump.
+
+This file was reverse-engineered from clues found throughout the source:
+- `MACRO.*` identifier references → revealed what constants Anthropic's pipeline injects at build time
+- `stubs/bun-bundle.ts` → revealed which internal packages are mocked out during bundling
+- `@anthropic-ai/sandbox-runtime` import statements → confirmed it is a private package that the real build replaces with a stub
+- The hardcoded `vendor/ripgrep/` path → revealed the production binary ships with an embedded `rg` binary
+
+Running `bun run build` on the raw leaked source would fail with `Cannot find entry point "build.ts"`. This file is our reconstruction of that missing piece.
+
+It runs `Bun.build()` to bundle `src/entrypoints/cli.tsx` into `dist/main.js`, then applies three sequential post-build patches to the output.
+
 
 | Patch | What It Does | Why It's Necessary |
 |---|---|---|
