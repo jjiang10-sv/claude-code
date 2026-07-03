@@ -1,4 +1,715 @@
+Viewed query.ts:222-237
 
+The `yield` and `yield*` keywords are part of **Generators** (and in this case, **Async Generators**) in JavaScript/TypeScript. 
+
+While you are correct that Promises and `async/await` handle asynchronous operations, they only allow you to return a **single, final value** when the operation completes. Generators solve a different problem: they allow a function to **return multiple values over time as a stream**.
+
+Here is a breakdown of why they are used here and how they work.
+
+### 1. Why use Generators instead of standard Async/Await?
+When talking to an LLM like Claude, you don't get the entire answer instantly. The response arrives over the network piece by piece (streaming). 
+
+If `queryLoop` was a standard async function, it would have to wait for the *entire* LLM response and all tool executions to finish before returning an array of messages:
+```typescript
+// Standard async (waits for everything to finish)
+async function query() {
+  const result = await anthropic.messages.create(...);
+  return result; // UI stays frozen for 10 seconds until this returns
+}
+```
+
+By making it an **Async Generator** (denoted by `async function*`), the function can `yield` (emit) pieces of data as soon as they happen. This is how the Claude Code CLI draws the streaming text to your terminal in real-time.
+
+```typescript
+// Async generator (streams data as it happens)
+async function* query() {
+  yield { type: 'stream_request_start' }; // UI updates immediately
+  // ... as chunks arrive over network:
+  yield { type: 'text', content: 'Here is ' }; 
+  yield { type: 'text', content: 'the answer.' };
+}
+```
+
+### 2. What does `yield*` do? (Line 230)
+On line 230, you see `yield* queryLoop(...)`.
+
+The asterisk `*` means **"delegate"**. 
+`queryLoop` is itself a massive async generator that yields dozens of different events (token usage, text chunks, tool execution boundaries, boundary messages for UI compaction). 
+
+If the code just did this:
+```typescript
+const terminal = await queryLoop(...) 
+```
+It would be broken, because `queryLoop` doesn't return a single Promise, it returns an Async Iterable (a stream).
+
+If the code did this:
+```typescript
+const generator = queryLoop(...)
+for await (const chunk of generator) {
+  yield chunk;
+}
+const terminal = await generator.return();
+```
+It would work, but it's very verbose.
+
+**`yield*` is simply syntax sugar for exactly that loop.** It tells JavaScript: *"Run the `queryLoop` generator. Every time `queryLoop` yields a chunk of data, instantly yield that chunk out of this `query()` function too. When `queryLoop` finally finishes and returns a final value, assign that final value to the `terminal` variable."*
+
+### Summary
+- **`async/await`**: Good for *"go do this one thing in the background and give me the final result."*
+- **`async function*` & `yield`**: Good for *"go do this thing in the background and stream me a continuous sequence of updates as they happen."* (Perfect for LLM streaming).
+- **`yield*`**: Good for taking a stream from a child function (`queryLoop`) and piping it directly through the parent function (`query`).
+
+
+Viewed query.ts:123-139
+
+Great question. They are fundamentally different operations.
+
+---
+
+### `yield` — Push one value out
+
+Used **inside** a generator to emit a single value to whoever is consuming it.
+
+```typescript
+function* example() {
+  yield 1;   // emits 1, then pauses
+  yield 2;   // emits 2, then pauses
+  yield 3;   // emits 3, then pauses
+  return "done";  // final return value
+}
+```
+
+`yield` does **not** call another generator. It just produces a value.
+
+---
+
+### `yield*` — Delegate to another generator and pipe all its values through
+
+Used to **forward** every value from a child generator through the current one, AND capture the child's final `return` value.
+
+```typescript
+function* child() {
+  yield 'A';
+  yield 'B';
+  return 'child-done';   // <-- this is the return value
+}
+
+function* parent() {
+  yield 0;
+  const result = yield* child();  // pipes A, B through; result = 'child-done'
+  yield result;                   // emits 'child-done'
+}
+
+// Consumer sees: 0, A, B, child-done
+```
+
+The key distinction:
+
+| | `yield x` | `yield* gen()` |
+|---|---|---|
+| What it emits | The single value `x` | Every value the child generator yields |
+| Return value | Whatever `.next(v)` passes back in | The child's final `return` value |
+| Use case | Produce one item | Delegate to a sub-generator and pipe its stream |
+
+---
+
+### How to call `query()` — you consume it with `for await`
+
+`query()` returns an `AsyncGenerator`. You never get a single result — you iterate it:
+
+```typescript
+import { query } from './src/query.js'
+
+const gen = query(params)       // ← does NOT start execution yet
+
+// iterate the stream
+for await (const event of gen) {
+  switch (event.type) {
+    case 'stream_request_start':
+      console.log('API call starting...')
+      break
+    case 'assistant':
+      // a text chunk or tool_use block arrived
+      const textBlocks = event.message.content.filter(b => b.type === 'text')
+      process.stdout.write(textBlocks.map(b => b.text).join(''))
+      break
+    case 'user':
+      // a tool result was added to the transcript
+      break
+    case 'result':
+      // final token usage, cost, etc.
+      console.log('\nDone:', event)
+      break
+  }
+}
+// queryLoop's return value (Terminal) is NOT accessible here via for-await
+// That's what yield* is for internally — query() captures it and can act on it
+```
+
+The `for await` loop exits when the generator is exhausted (no more `yield`s).
+
+---
+
+### The exact same pattern in `query.ts` itself
+
+```
+query()          ← AsyncGenerator, called from the REPL/QueryEngine
+  └── yield* queryLoop()    ← pipes everything queryLoop yields
+        ├── yield { type: 'stream_request_start' }
+        ├── yield assistantMessage         (text chunk)
+        ├── yield userMessage              (tool result)
+        ├── yield assistantMessage         (next turn)
+        └── return { reason: 'stop' }      ← Terminal (captured by yield*)
+```
+
+The callers (like the React REPL component in `QueryEngine.ts`) do exactly the `for await` loop above to drive the UI updates one event at a time.
+
+
+Edited dev.md
+Viewed dev.md:50-59
+
+Good questions. Let me address each one directly.
+
+---
+
+### Why does it pause?
+
+A generator pauses **so the consumer can process each value before the next one is produced.** This is the entire point — it creates backpressure.
+
+Without pausing, the generator would race ahead producing thousands of events (token chunks, tool results, etc.) faster than the UI/terminal could render them. The pause is not a delay — it resumes the instant the consumer calls `.next()` again (which `for await` does automatically after each iteration body finishes).
+
+```
+Generator side          Consumer side (for await)
+─────────────────────   ─────────────────────────
+yield chunk1      ──→   receives chunk1, renders it
+  [PAUSED]               calls .next() when done
+  [RESUMES]   ←──────   
+yield chunk2      ──→   receives chunk2, renders it
+  [PAUSED]               calls .next() when done
+  ...
+return Terminal   ──→   loop exits (done=true)
+```
+
+It's a **cooperative ping-pong** between producer and consumer. Neither runs uncontrolled.
+
+---
+
+### Does it need to terminate?
+
+Yes — but termination happens automatically when the generator function body ends (falls off the end or hits `return`). The consumer's `for await` loop sees `{ done: true }` and exits cleanly.
+
+The `Terminal` return value (e.g. `{ reason: 'stop' }`) is **not** delivered through the `for await` loop — it's only accessible via `yield*` internally in `query()`. This is why `query.ts` is structured as two layers:
+
+```
+queryLoop()  →  returns Terminal  (the "why did we stop")
+query()      →  captures Terminal via yield*, acts on it, then ends
+```
+
+The `for await` caller upstream never sees the `Terminal` directly — they just see the loop end.
+
+---
+
+### Who receives the piped values?
+
+Tracing the actual call chain in this codebase:
+
+```
+QueryEngine.ts (React component)
+  └── for await (const event of ask(params))   ← the consumer
+        ask() calls query()
+          query() yield* queryLoop()
+            queryLoop() yields:
+              { type: 'stream_request_start' }   → UI shows spinner
+              assistantMessage (text chunk)       → UI renders text
+              userMessage (tool result)           → UI renders tool output
+              assistantMessage (next turn)        → UI renders more text
+              ...
+            queryLoop() returns Terminal          → captured by query()'s yield*
+          query() does cleanup (notifyCommandLifecycle)
+          query() ends → for await exits
+        ask() processes the Terminal
+      React re-renders with final state
+```
+
+The concrete receiver is `QueryEngine.ts` — it collects the events and calls `setAppState()` to update the Ink/React component tree that draws to your terminal. You can see this around line 1186 in `QueryEngine.ts`.
+
+---
+
+### One-line summary of each concept
+
+| Question | Answer |
+|---|---|
+| Why pause? | So the consumer can process each event before the next is produced (backpressure) |
+| Who resumes it? | `for await` — automatically calls `.next()` after each loop body |
+| Does it need to terminate? | Yes — generator returns or falls off end; `for await` loop exits |
+| Who receives the values? | `QueryEngine.ts` — the `for await` loop that drives the React/Ink UI |
+| Where does `Terminal` go? | Captured by `yield*` inside `query()` — never seen by the outer `for await` |
+
+
+Edited dev.md
+Viewed QueryEngine.ts:1147-1163
+
+Here is the full workflow diagram and a precise explanation of how `yield`/`yield*` are used at each layer.
+
+```mermaid
+sequenceDiagram
+    participant C as Caller<br/>(SDK user / CLI)
+    participant SM as submitMessage()<br/>async function*
+    participant PUI as processUserInput()
+    participant Q as query()<br/>async function*
+    participant QL as queryLoop()<br/>async function*
+    participant API as Anthropic API<br/>(HTTP stream)
+
+    C->>SM: for await (msg of engine.submitMessage(prompt))
+    note over SM: Setup phase (no yields yet)
+    SM->>SM: fetchSystemPromptParts()
+    SM->>PUI: processUserInput(prompt)
+    PUI-->>SM: { messages, shouldQuery, model }
+    SM->>SM: recordTranscript() — save user msg
+    SM-->>C: yield buildSystemInitMessage()
+    note over C: receives system_init first
+
+    alt shouldQuery = false (slash command)
+        SM-->>C: yield local command output
+        SM-->>C: yield { type: 'result', subtype: 'success' }
+        SM->>SM: return (generator ends)
+    else shouldQuery = true (real prompt)
+        SM->>Q: for await (msg of query(params))
+        Q->>QL: yield* queryLoop(params)
+        note over QL: the main agentic loop
+
+        loop until model stops calling tools
+            QL->>API: HTTP POST /messages (streaming)
+            API-->>QL: stream chunks arrive
+            QL-->>Q: yield { type: 'stream_request_start' }
+            QL-->>Q: yield assistantMessage (text/tool_use)
+            QL-->>Q: yield userMessage (tool result)
+            Q-->>SM: each yielded value passes through (yield*)
+            SM->>SM: switch(message.type)
+            SM-->>C: yield* normalizeMessage(msg) → SDK shape
+        end
+
+        QL->>QL: return Terminal { reason: 'stop' }
+        note over Q: yield* captures Terminal
+        Q->>Q: notifyCommandLifecycle() cleanup
+        Q->>Q: return (ends)
+        SM->>SM: for await loop exits
+        SM-->>C: yield { type: 'result', subtype: 'success' }
+        SM->>SM: return (generator ends)
+    end
+
+    note over C: for await loop exits
+```
+
+---
+
+### How `yield` and `yield*` are used at each layer
+
+**Layer 1 — `submitMessage` yields to the SDK caller**
+
+```typescript
+// Direct yield: emit one hand-crafted SDK message
+yield buildSystemInitMessage({ tools, model, ... })
+
+// yield* delegation: normalizeMessage() is itself a generator
+// that can emit 0, 1, or many SDK messages from one internal message
+// (e.g., a multi-block assistant message → multiple SDK content events)
+yield* normalizeMessage(message)   // case 'assistant'
+yield* normalizeMessage(message)   // case 'user'
+yield* normalizeMessage(message)   // case 'progress'
+
+// Direct yield: hand-crafted result object at the end
+yield { type: 'result', subtype: 'success', ... }
+```
+
+**Layer 2 — `submitMessage` consumes `query()` with `for await`**
+
+```typescript
+// query() returns an AsyncGenerator — submitMessage drives it explicitly
+for await (const message of query({ messages, systemPrompt, ... })) {
+    // Each message is one internal event from queryLoop
+    // submitMessage transforms it → yields SDK shape upward
+}
+```
+
+**Layer 3 — `query()` delegates to `queryLoop()` with `yield*`**
+
+```typescript
+// yield* does three things at once:
+// 1. Forwards every value queryLoop yields → to whoever called query()
+// 2. Captures queryLoop's final return value as `terminal`
+// 3. Handles errors and .return() automatically
+const terminal = yield* queryLoop(params, consumedCommandUuids)
+// Only runs after queryLoop is fully done
+notifyCommandLifecycle(...)
+```
+
+---
+
+### Why `normalizeMessage` uses `yield*` instead of `yield`
+
+One internal `assistantMessage` can contain multiple content blocks (text + tool_use). The SDK format sends each block as a separate event. `normalizeMessage` is a generator that expands one internal message into N SDK messages:
+
+```typescript
+// Internal: one assistant message with 2 blocks
+{ type: 'assistant', message: { content: [ {type:'text',...}, {type:'tool_use',...} ] } }
+
+// normalizeMessage yields these separately to the SDK caller:
+yield { type: 'assistant', content: [{type:'text',...}] }
+yield { type: 'assistant', content: [{type:'tool_use',...}] }
+```
+
+`yield* normalizeMessage(msg)` pipes both of those out automatically. If it used `yield normalizeMessage(msg)` instead, the caller would receive the generator object itself — not its values.
+
+---
+
+### The complete value flow in one picture
+
+```
+SDK Caller
+  │  for await (msg of submitMessage())
+  │
+  ├── receives: system_init         ← yield (direct, one value)
+  │
+  ├── receives: assistant chunks    ← yield* normalizeMessage()
+  ├── receives: tool_use blocks     ↑ (0..N values per internal msg)
+  ├── receives: tool_results        ↑
+  ├── receives: api_retry events    ← yield (direct)
+  │
+  └── receives: { type:'result' }   ← yield (direct, final value)
+
+        ↑ all the above come from submitMessage's for-await loop over:
+
+        query()
+          └─ yield* queryLoop()
+                └─ yields raw internal Messages (not SDK shape)
+                   from the Anthropic HTTP stream + tool execution
+```
+
+
+Edited dev.md
+Viewed dev.md:381-393
+
+## Generators vs Async/Await in TypeScript
+
+### The core mental model
+
+| | `async/await` | Generator (`function*`) | Async Generator (`async function*`) |
+|---|---|---|---|
+| Returns | One `Promise<T>` | `Generator<T>` iterable | `AsyncGenerator<T>` iterable |
+| Values produced | **1** final value | **N** values synchronously | **N** values asynchronously |
+| Caller uses | `await fn()` | `for...of fn()` | `for await...of fn()` |
+| Can `await` inside? | ✓ | ✗ | ✓ |
+| Can `yield` inside? | ✗ | ✓ | ✓ |
+
+---
+
+### `async/await` — one result, when done
+
+```typescript
+async function getAnswer(): Promise<number> {
+  const data = await fetch('/api')   // waits for network
+  return 42                          // caller gets exactly this one value
+}
+
+// Caller:
+const answer = await getAnswer()    // blocks until done, gets 42
+```
+
+One call → one eventual value. The caller is blocked waiting for the entire operation.
+
+---
+
+### Generator (`function*`) — N values, synchronously
+
+A `function*` is a **pauseable function**. Every `yield` suspends execution and hands a value to whoever is iterating it. The function resumes from where it paused when the caller asks for the next value.
+
+```typescript
+function* counter(): Generator<number> {
+  console.log('start')
+  yield 1          // pause here, emit 1
+  console.log('resumed after 1')
+  yield 2          // pause here, emit 2
+  yield 3          // pause here, emit 3
+  console.log('done')
+  // implicit return undefined — generator exhausted
+}
+
+// Calling it creates a Generator object — does NOT run the body yet
+const gen = counter()
+
+// Drive it manually:
+console.log(gen.next())  // { value: 1, done: false }  — prints 'start'
+console.log(gen.next())  // { value: 2, done: false }  — prints 'resumed after 1'
+console.log(gen.next())  // { value: 3, done: false }
+console.log(gen.next())  // { value: undefined, done: true } — prints 'done'
+
+// Or use for...of (calls .next() automatically until done: true)
+for (const n of counter()) {
+  console.log(n)   // 1, 2, 3
+}
+```
+
+The key insight: the function body is **not executed when you call `counter()`**. It starts running only when you call `.next()` for the first time.
+
+---
+
+### Async Generator (`async function*`) — N values, asynchronously
+
+Combines both: can `await` inside (non-blocking I/O) AND can `yield` multiple times (streaming).
+
+```typescript
+async function* fetchChunks(url: string): AsyncGenerator<string> {
+  const response = await fetch(url)       // awaits HTTP response start
+  const reader = response.body!.getReader()
+
+  while (true) {
+    const { done, value } = await reader.read()   // awaits each chunk
+    if (done) break
+    yield new TextDecoder().decode(value)          // emits chunk to caller
+  }
+  // return — generator done
+}
+
+// Caller:
+for await (const chunk of fetchChunks('https://example.com/stream')) {
+  process.stdout.write(chunk)   // processes each chunk as it arrives
+}
+```
+
+This is exactly how `queryLoop()` works — it `await`s each chunk from the Anthropic HTTP stream, then `yield`s it to `query()`, which `yield*`s it to `submitMessage()`, which `yield*`s it to the SDK caller.
+
+---
+
+### Is there a "yield function"? No — there are only two forms of the keyword
+
+There is no "yield function" as a concept. `yield` is a **keyword** with two forms:
+
+**Form 1: `yield <value>`** — emit one value
+
+```typescript
+function* gen() {
+  yield 42           // emits the number 42
+  yield 'hello'      // emits the string 'hello'
+  yield { x: 1 }    // emits an object
+}
+```
+
+**Form 2: `yield* <iterable>`** — delegate to another iterable, pipe all its values through
+
+```typescript
+function* gen() {
+  yield* [1, 2, 3]         // pipes 1, 2, 3 through (array is iterable)
+  yield* otherGenerator()  // pipes all values from another generator through
+  yield* 'abc'             // strings are iterable — pipes 'a', 'b', 'c'
+}
+```
+
+The critical difference:
+
+```typescript
+function* child() {
+  yield 'A'
+  yield 'B'
+  return 'DONE'    // ← this is the return value, NOT yielded
+}
+
+function* withYield() {
+  yield child()       // emits the Generator OBJECT ITSELF — not its values!
+}
+
+function* withYieldStar() {
+  const r = yield* child()   // emits 'A', then 'B'; r = 'DONE' (return value)
+}
+
+// withYield consumer sees:    Generator { } (the object)
+// withYieldStar consumer sees: 'A', 'B'    (the values)
+```
+
+---
+
+### The execution flow compared
+
+```
+async/await:
+  caller ──await──→ function runs to completion ──→ caller gets 1 value
+
+Generator:
+  caller                    function
+    │  .next()  ──────────→  runs until yield
+    │  ←── value ──────────  [PAUSED at yield]
+    │  .next()  ──────────→  resumes, runs until next yield
+    │  ←── value ──────────  [PAUSED at yield]
+    │  .next()  ──────────→  resumes, runs until return
+    │  ←── { done: true } ─  [EXHAUSTED]
+
+Async Generator (what queryLoop uses):
+  caller                    function
+    │  .next()  ──────────→  runs until yield or await
+    │                         [may await I/O internally]
+    │  ←── value ──────────  [PAUSED at yield]
+    │  .next()  ──────────→  resumes...
+    │  ... (same ping-pong, but network I/O can happen inside)
+```
+
+---
+
+### Why use async generators for LLM streaming specifically
+
+With `async/await` you cannot stream — you get one big response when done:
+
+```typescript
+// Bad: user waits 10 seconds for full response
+const fullText = await anthropic.messages.create({ stream: false })
+render(fullText)
+```
+
+With `async function*` you process each token the instant it arrives:
+
+```typescript
+// Good: UI updates in real-time
+async function* streamTokens() {
+  const stream = await anthropic.messages.stream({...})
+  for await (const chunk of stream) {
+    yield chunk.delta.text   // each token, immediately
+  }
+}
+
+for await (const token of streamTokens()) {
+  appendToUI(token)   // renders character by character
+}
+```
+
+This is exactly the pattern `queryLoop()` → `query()` → `submitMessage()` implements — each HTTP stream chunk becomes a `yield`, which propagates up through `yield*` chains until the SDK caller's `for await` loop renders it.
+
+## What `preload.ts` does
+
+The problem it solves: when you run a source file directly (e.g., `bun src/main.tsx` or a `debug/explore-*.ts` script), Bun encounters `import { feature } from 'bun:bundle'` inside the source. **`bun:bundle` is not a real npm package** — it's a virtual module that only exists inside Bun's build pipeline. Running source files directly without a preload crashes immediately with a module-not-found error.
+
+The `preload.ts` script intercepts that import **before any source file runs** using Bun's `plugin()` API:
+
+```
+bun:bundle import requested
+       ↓
+  [Bun plugin hook fires]
+       ↓
+  Redirects to: stubs/bun-bundle.ts
+       ↓
+  feature('COORDINATOR_MODE') → true
+  feature('anything else')    → false
+```
+
+It's the **runtime equivalent** of what Bun's `--define` flag does at build time — but applied at source-file level so you can run `.tsx` files directly without bundling first.
+
+---
+
+## How to wire it into `launch.json`
+
+The Bun VSCode extension supports a `"runtime"` + `"runtimeArgs"` field to pass `--preload`. Add it to the source-level debug configs:
+
+Viewed launch.json:1-144
+Edited launch.json
+
+Done. Here's the full picture:
+
+---
+
+### `preload.ts` explained
+
+`bun:bundle` is a **virtual module** — it only exists inside Bun's build pipeline. When you run a source file directly (skipping the build), Bun doesn't know what `bun:bundle` is and crashes. The preload script fires a `plugin()` hook **before any other code loads**, intercepting any `import ... from 'bun:bundle'` and silently redirecting it to `stubs/bun-bundle.ts` — the same stub the build uses.
+
+```
+Without preload:  bun src/main.tsx → ❌ Cannot find module 'bun:bundle'
+With preload:     bun --preload debug/preload.ts src/main.tsx → ✅ feature() shimmed
+```
+
+---
+
+### Two debugging modes (now both in `launch.json`)
+
+| Mode | Prefix | How | Breakpoints | MACRO.* works? |
+|---|---|---|---|---|
+| **Bundle mode** | `🐛 Debug CLI...` | Runs `dist/main.js` + source maps | Map back to original `.tsx` via `.map` file | ✅ Yes (injected at build time) |
+| **Source mode** | `📄 Source: ...` | Runs `.tsx` directly + `--preload` | Directly in the source file | ❌ No (any MACRO.PACKAGE_URL hit = ReferenceError) |
+
+**Use source mode** when you want the cleanest breakpoint experience exploring subsystems like `AgentTool`, `QueryEngine`, `TaskCreateTool`, etc. — as long as your code path doesn't touch the updater/version/install logic.
+
+**Use bundle mode** when you need the full end-to-end runtime (interactive REPL, sandbox checks, ripgrep, etc.) or when source mode crashes on a MACRO reference.
+
+Viewed index.ts:1-13
+
+Good catch. This is actually a remnant of our earlier debugging work. The **original** leaked source for this file would have had:
+
+```typescript
+import { feature } from 'bun:bundle'
+```
+
+We (or the build plugin we wrote) changed it to import directly from the stub path. Let me verify what the rest of the codebase looks like:
+
+Searched for "from 'bun:bundle'"
+Searched for "from 'bun:bundle'"
+
+That's the key finding. The grep confirms:
+
+- **`.bak` files** (the originals): all 50+ source files use `import { feature } from 'bun:bundle'`
+- **Active `.ts`/`.tsx` files**: **zero** files still use `bun:bundle`
+
+This means during the earlier debugging session, every source file that had `import { feature } from 'bun:bundle'` was already rewritten to import directly from the stub — and the `.bak` copies were kept as a record of the originals.
+
+So for the **compiled bundle** (`dist/main.js`), the `preload.ts` is indeed redundant — the Bun build plugin in `build.ts` never even encounters `bun:bundle` as an import anymore because the source files already point to the stub directly.
+
+For **source-mode debugging** (running `.tsx` directly via the launch configs), the same applies — `preload.ts` is also not needed since none of the active source files import `bun:bundle`.
+
+The `preload.ts` is now **vestigial** — it was written for the original source (where `bun:bundle` appeared everywhere), but it's no longer needed after the mass-replacement that was done. The `"runtimeArgs": ["--preload", ...]` lines we just added to `launch.json` are effectively no-ops now.
+
+You can keep them harmlessly, or remove them. The source-level debug configs will work either way.
+
+
+
+
+There are two things needed: (1) enable source maps in `build.ts` so breakpoints map to source files, and (2) update `launch.json` to target `dist/main.js` via Bun (not Node, which fails because of missing native modules), and add a pre-build task.
+
+Viewed build.ts:1-15
+Viewed build.ts:15-25
+Listed directory .vscode
+
+Now I'll make both changes — enable source maps in the build and update the launch configs, plus create a `tasks.json`:
+
+Edited build.ts
+Viewed build.ts:14-20
+Edited build.ts
+
+Now update the `launch.json`:
+
+Edited launch.json
+
+Now create the `tasks.json` so the `preLaunchTask` works:
+
+Created tasks.json
+
+Now do a build to verify the source maps are generated:
+
+Ran command: `bun run build && ls -lh dist/main.js dist/main.js.map 2>/dev/null || echo "no source map"`
+
+Source maps are generated (`dist/main.js.map` — 66MB). Everything is in place. Here's the summary:
+
+---
+
+### What was changed and why
+
+| File | Change | Why |
+|---|---|---|
+| **`build.ts`** | Added `sourcemap: 'linked'` | Generates `dist/main.js.map` so the debugger can trace execution back to original `.tsx`/`.ts` source files instead of the minified bundle |
+| **`.vscode/launch.json`** | Replaced old configs | Old "Full CLI" pointed at `src/main.tsx` — won't work directly (missing MACRO constants + patches). New configs target `dist/main.js` via Bun. Node.js also fails (`ERR_MODULE_NOT_FOUND: color-diff-napi`) because native modules are Bun-only. Added `preLaunchTask: "Build"` so it auto-rebuilds on every debug run |
+| **`.vscode/tasks.json`** | New file | Required for `preLaunchTask` to work — defines the "Build" task that runs `bun run build` |
+
+### How to debug
+
+- **`🐛 Debug CLI (Print mode, stop on entry)`** — best starting point: pauses before any code runs, you set breakpoints then hit Continue
+- **`🐛 Debug CLI (Interactive)`** — full Ink UI debug session, breakpoints work during the REPL loop
+- **`🔗 Attach to running Bun process`** — start `bun --inspect dist/main.js` manually in terminal, then attach here
+
+> **Important:** Make sure the `oven-sh.bun-vscode` extension is installed in Antigravity. Without it, the `"type": "bun"` configs won't be recognized.
 
 ### 1. The Regular Expression: `/[^a-zA-Z0-9_-]/g`
 In `sanitizePathComponent`, this regular expression cleans up string inputs to make them safe for use in file paths (like the task directory names):

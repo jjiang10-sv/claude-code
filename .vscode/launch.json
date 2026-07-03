@@ -1,9 +1,113 @@
 {
   "version": "0.2.0",
   // Requires the Bun VS Code extension: oven-sh.bun-vscode
+  // NOTE: Always run via Bun, NOT Node. Node fails on native modules (color-diff-napi, etc.)
+  // that are resolved at runtime by Bun's module system.
   "configurations": [
+    // ─────────────────────────────────────────────────────────────
+    // PRIMARY DEBUG CONFIGS (target the compiled dist/main.js)
+    //
+    // These use source maps (dist/main.js.map) to map breakpoints
+    // back to the original src/ TypeScript files.
+    // ─────────────────────────────────────────────────────────────
     {
-      "name": "Login / Auth flow",
+      // Interactive REPL — breakpoints map back to src/ via source maps
+      "name": "🐛 Debug CLI (Interactive)",
+      "type": "bun",
+      "request": "launch",
+      "program": "${workspaceFolder}/dist/main.js",
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "ANTHROPIC_API_KEY": "${env:ANTHROPIC_API_KEY}",
+        "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "true"
+      },
+      "args": [],
+      "preLaunchTask": "Build",
+      "stopOnEntry": false
+    },
+    {
+      // Print mode — non-interactive, easier to debug a single prompt without Ink UI
+      "name": "🐛 Debug CLI (Print mode)",
+      "type": "bun",
+      "request": "launch",
+      "program": "${workspaceFolder}/dist/main.js",
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "ANTHROPIC_API_KEY": "${env:ANTHROPIC_API_KEY}",
+        "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "true"
+      },
+      "args": [
+        "-p",
+        "list the tools you have available, focusing on team/agent tools"
+      ],
+      "preLaunchTask": "Build",
+      "stopOnEntry": false
+    },
+    {
+      // Same as print mode but pauses immediately on entry — set your breakpoints before resuming
+      "name": "🐛 Debug CLI (Print mode, stop on entry)",
+      "type": "bun",
+      "request": "launch",
+      "program": "${workspaceFolder}/dist/main.js",
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "ANTHROPIC_API_KEY": "${env:ANTHROPIC_API_KEY}",
+        "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "true"
+      },
+      "args": [
+        "-p",
+        "hello"
+      ],
+      "preLaunchTask": "Build",
+      "stopOnEntry": true
+    },
+    {
+      // Run the build script itself under the debugger
+      "name": "🔨 Debug build.ts",
+      "type": "bun",
+      "request": "launch",
+      "program": "${workspaceFolder}/build.ts",
+      "cwd": "${workspaceFolder}",
+      "env": {},
+      "stopOnEntry": false
+    },
+    // ─────────────────────────────────────────────────────────────
+    // SOURCE-LEVEL DEBUG CONFIGS (run src/*.tsx directly via preload)
+    //
+    // debug/preload.ts shims the 'bun:bundle' virtual module so that
+    // import { feature } from 'bun:bundle' works when running source
+    // files directly (without bundling). Without this shim, Bun throws
+    // "Cannot find module 'bun:bundle'" immediately on startup.
+    //
+    // Trade-off: breakpoints are in original .tsx files (better DX),
+    // but MACRO.* constants are NOT defined — any code touching
+    // MACRO.PACKAGE_URL etc. will throw ReferenceError at runtime.
+    // Use these configs for exploring subsystems that don't hit MACRO.
+    // ─────────────────────────────────────────────────────────────
+    {
+      // Run src/main.tsx directly — skips the build step entirely.
+      // Good for exploring startup flow + tool registration.
+      "name": "📄 Source: Full CLI (via preload)",
+      "type": "bun",
+      "request": "launch",
+      "program": "${workspaceFolder}/src/main.tsx",
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "ANTHROPIC_API_KEY": "${env:ANTHROPIC_API_KEY}",
+        "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "true"
+      },
+      "args": [
+        "-p",
+        "hello"
+      ],
+      "runtimeArgs": [
+        "--preload",
+        "${workspaceFolder}/debug/preload.ts"
+      ],
+      "stopOnEntry": false
+    },
+    {
+      "name": "Auth",
       "type": "bun",
       "request": "launch",
       "program": "${workspaceFolder}/debug/explore-auth.ts",
@@ -11,10 +115,13 @@
       "env": {
         "ANTHROPIC_API_KEY": "${env:ANTHROPIC_API_KEY}"
       },
-      //"stopOnEntry": true
+      "runtimeArgs": [
+        "--preload",
+        "${workspaceFolder}/debug/preload.ts"
+      ]
     },
     {
-      "name": "Skills system",
+      "name": "Skills",
       "type": "bun",
       "request": "launch",
       "program": "${workspaceFolder}/debug/explore-skills.ts",
@@ -22,6 +129,10 @@
       "env": {
         "ANTHROPIC_API_KEY": "${env:ANTHROPIC_API_KEY}"
       },
+      "runtimeArgs": [
+        "--preload",
+        "${workspaceFolder}/debug/preload.ts"
+      ],
       "stopOnEntry": true
     },
     {
@@ -33,6 +144,10 @@
       "env": {
         "ANTHROPIC_API_KEY": "${env:ANTHROPIC_API_KEY}"
       },
+      "runtimeArgs": [
+        "--preload",
+        "${workspaceFolder}/debug/preload.ts"
+      ],
       "stopOnEntry": true
     },
     {
@@ -44,10 +159,14 @@
       "env": {
         "ANTHROPIC_API_KEY": "${env:ANTHROPIC_API_KEY}"
       },
+      "runtimeArgs": [
+        "--preload",
+        "${workspaceFolder}/debug/preload.ts"
+      ],
       "stopOnEntry": true
     },
     {
-      "name": "Permissions system",
+      "name": "Permissions",
       "type": "bun",
       "request": "launch",
       "program": "${workspaceFolder}/debug/explore-permissions.ts",
@@ -55,21 +174,21 @@
       "env": {
         "ANTHROPIC_API_KEY": "${env:ANTHROPIC_API_KEY}"
       },
+      "runtimeArgs": [
+        "--preload",
+        "${workspaceFolder}/debug/preload.ts"
+      ],
       "stopOnEntry": true
     },
+    // ─────────────────────────────────────────────────────────────
+    // ATTACH — connect to an already-running Bun process
+    // Start the process first with:
+    //   bun --inspect dist/main.js
+    // or (source-level):
+    //   bun --inspect --preload debug/preload.ts src/main.tsx -p hello
+    // ─────────────────────────────────────────────────────────────
     {
-      "name": "Full CLI (main entry)",
-      "type": "bun",
-      "request": "launch",
-      "program": "${workspaceFolder}/src/main.tsx",
-      "cwd": "${workspaceFolder}",
-      "env": {
-        "ANTHROPIC_API_KEY": "${env:ANTHROPIC_API_KEY}"
-      },
-      "stopOnEntry": true
-    },
-    {
-      "name": "Attach to running Bun process",
+      "name": "🔗 Attach to running Bun process",
       "type": "bun",
       "request": "attach",
       "port": 6499,

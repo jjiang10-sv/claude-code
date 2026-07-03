@@ -14,6 +14,7 @@ const result = await Bun.build({
     'MACRO.ISSUES_EXPLAINER': '"visit https://github.com/anthropics/claude-code/issues"',
     'MACRO.VERSION_CHANGELOG': '""',
   },
+  sourcemap: 'linked',
   plugins: [
     {
       name: 'stub-missing-files',
