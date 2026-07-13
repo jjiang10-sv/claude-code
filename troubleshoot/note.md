@@ -186,8 +186,6 @@ Specifically, it is launched by the `antigravity` IDE extension to provide code 
 
 As long as you have the **Antigravity** IDE window open, it will continue to respawn this process. It will finally terminate when you close the IDE.
 
-Edited note.md
-Viewed note.md:206-208
 
 ### 1. Why it relates to this specific Workspace
 Antigravity (like VS Code, which it is based on) isolates its work by workspace window. When you open a folder in the editor, it spins up a dedicated environment for that folder:

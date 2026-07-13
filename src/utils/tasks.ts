@@ -209,6 +209,7 @@ export function getTaskListId(): string {
   return getTeamName() || leaderTeamName || getSessionId()
 }
 
+
 /**
  * Sanitizes a string for safe use in file paths.
  * Removes path traversal characters and other potentially dangerous characters.
@@ -488,11 +489,11 @@ export async function blockTask(
 export type ClaimTaskResult = {
   success: boolean
   reason?:
-    | 'task_not_found'
-    | 'already_claimed'
-    | 'already_resolved'
-    | 'blocked'
-    | 'agent_busy'
+  | 'task_not_found'
+  | 'already_claimed'
+  | 'already_resolved'
+  | 'blocked'
+  | 'agent_busy'
   task?: Task
   busyWithTasks?: string[] // task IDs the agent is busy with (when reason is 'agent_busy')
   blockedByTasks?: string[] // task IDs blocking this task (when reason is 'blocked')

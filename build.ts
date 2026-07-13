@@ -6,7 +6,7 @@ const result = await Bun.build({
     entry: 'main.js'
   },
   define: {
-    'MACRO.VERSION': '"2.1.181-dev"',
+    'MACRO.VERSION': '"2.1.88-dev"',
     'MACRO.BUILD_TIME': '"2026-07-01T00:00:00Z"',
     'MACRO.FEEDBACK_CHANNEL': '"#claude-code-feedback"',
     'MACRO.PACKAGE_URL': '"@anthropic-ai/claude-code"',
@@ -22,7 +22,7 @@ const result = await Bun.build({
         build.onResolve({ filter: /dream\.js$|hunter\.js$|runSkillGenerator\.js$|prompt\.txt$|auto_mode_system_prompt\.txt$|permissions_external\.txt$|permissions_anthropic\.txt$/ }, args => {
           return { path: args.path, namespace: 'stub' };
         });
-        
+
         build.onLoad({ filter: /.*/, namespace: 'stub' }, args => {
           let contents = 'export default "";';
           if (args.path.includes('dream')) {
@@ -149,11 +149,32 @@ try {
     const vendorDir = `./dist/vendor/ripgrep/${arch}-${platform}`;
     fs.mkdirSync(vendorDir, { recursive: true });
     const linkTarget = `${vendorDir}/rg`;
-    try { fs.unlinkSync(linkTarget); } catch {}
+    try { fs.unlinkSync(linkTarget); } catch { }
     fs.symlinkSync(rgPath, linkTarget);
     console.log(`Created vendor ripgrep symlink: ${linkTarget} -> ${rgPath}`);
   }
 } catch (e) {
   console.warn('Could not create vendor ripgrep symlink:', (e as Error).message);
 }
-
+// Patch 4: Rewrite sourcemap sources to absolute paths.
+// Bun emits relative sources like "../src/entrypoints/cli.tsx" (relative to dist/).
+// VS Code's pwa-node JavaScript debugger receives these paths over the CDP protocol from
+// Bun's inspector and fails to normalise them to absolute paths before comparing them
+// against open editor URIs — so breakpoints in src/ stay greyed out.
+// Fix: resolve every source path to an absolute path so the debugger matches them trivially.
+{
+  const mapPath = './dist/main.js.map';
+  const map = JSON.parse(fs.readFileSync(mapPath, 'utf8'));
+  const path = await import('node:path');
+  const distDir = path.resolve('./dist');
+  map.sources = map.sources.map((src: string) => {
+    if (src.startsWith('..') || src.startsWith('./') || (!src.startsWith('/') && !src.startsWith('file:'))) {
+      return path.resolve(distDir, src);
+    }
+    return src;
+  });
+  // Remove sourceRoot if present — absolute sources don't need it, and it can confuse debuggers.
+  delete map.sourceRoot;
+  fs.writeFileSync(mapPath, JSON.stringify(map), 'utf8');
+  console.log('Patched: sourcemap sources → absolute paths');
+}

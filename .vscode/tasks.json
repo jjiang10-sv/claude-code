@@ -19,6 +19,37 @@
         "clear": true
       },
       "problemMatcher": []
+    },
+    {
+      // Starts bun with inspector open and waits for a debugger to attach.
+      // The problemMatcher watches for "Debugger listening" on stderr so VS Code
+      // knows the inspector is ready before the attach launch config connects.
+      "label": "Start Bun Inspector (dump-system-prompt)",
+      "type": "shell",
+      "command": "bun --inspect-wait=9229 ./dist/main.js --dump-system-prompt",
+      "dependsOn": ["Build"],
+      "isBackground": true,
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "ANTHROPIC_API_KEY": "${env:ANTHROPIC_API_KEY}"
+        }
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true
+      },
+      "problemMatcher": {
+        "pattern": {
+          "regexp": "^$"
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "^\\$",
+          "endsPattern": "Debugger listening"
+        }
+      }
     }
   ]
 }

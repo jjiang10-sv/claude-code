@@ -11,26 +11,33 @@
     // back to the original src/ TypeScript files.
     // ─────────────────────────────────────────────────────────────
     {
-      // Interactive REPL — breakpoints map back to src/ via source maps
-      "name": "🐛 Debug CLI (Interactive)",
+      // Runs the TypeScript SOURCE directly — no bundle, no external sourcemap.
+      // The Bun VS Code extension natively maps breakpoints in .tsx files because
+      // Bun transpiles the source internally and its debugger knows the mapping.
+      // --preload injects the MACRO global that build.ts normally inlines at build time.
+      "name": "CLI-Interactive",
       "type": "bun",
       "request": "launch",
-      "program": "${workspaceFolder}/dist/main.js",
+      "program": "${workspaceFolder}/src/entrypoints/cli.tsx",
       "cwd": "${workspaceFolder}",
       "env": {
-        "ANTHROPIC_API_KEY": "${env:ANTHROPIC_API_KEY}",
-        "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "true"
+        "ANTHROPIC_API_KEY": "${env:ANTHROPIC_API_KEY}"
       },
-      "args": [],
-      "preLaunchTask": "Build",
+      "args": [
+        "--dump-system-prompt"
+      ],
+      "runtimeArgs": [
+        "--preload",
+        "./debug/preload-macros.ts"
+      ],
       "stopOnEntry": false
     },
     {
       // Print mode — non-interactive, easier to debug a single prompt without Ink UI
-      "name": "🐛 Debug CLI (Print mode)",
+      "name": "CLI-Print",
       "type": "bun",
       "request": "launch",
-      "program": "${workspaceFolder}/dist/main.js",
+      "program": "${workspaceFolder}/src/entrypoints/cli.tsx",
       "cwd": "${workspaceFolder}",
       "env": {
         "ANTHROPIC_API_KEY": "${env:ANTHROPIC_API_KEY}",
@@ -40,15 +47,18 @@
         "-p",
         "list the tools you have available, focusing on team/agent tools"
       ],
-      "preLaunchTask": "Build",
+      "runtimeArgs": [
+        "--preload",
+        "./debug/preload-macros.ts"
+      ],
       "stopOnEntry": false
     },
     {
       // Same as print mode but pauses immediately on entry — set your breakpoints before resuming
-      "name": "🐛 Debug CLI (Print mode, stop on entry)",
+      "name": "CLI-Print-Entry",
       "type": "bun",
       "request": "launch",
-      "program": "${workspaceFolder}/dist/main.js",
+      "program": "${workspaceFolder}/src/entrypoints/cli.tsx",
       "cwd": "${workspaceFolder}",
       "env": {
         "ANTHROPIC_API_KEY": "${env:ANTHROPIC_API_KEY}",
@@ -58,7 +68,10 @@
         "-p",
         "hello"
       ],
-      "preLaunchTask": "Build",
+      "runtimeArgs": [
+        "--preload",
+        "./debug/preload-macros.ts"
+      ],
       "stopOnEntry": true
     },
     {

@@ -6,5 +6,10 @@ export function feature(name: string): boolean {
   if (['COORDINATOR_MODE', 'AGENT_TRIGGERS', 'AGENT_TRIGGERS_REMOTE', 'BUILDING_CLAUDE_APPS'].includes(name)) {
     return true
   }
+
+  if (['DUMP_SYSTEM_PROMPT'].includes(name)) {
+    return true
+  }
+
   return false
 }
